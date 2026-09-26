@@ -1,0 +1,37 @@
+{
+  "codex": {
+    "label": "Codex · ChatGPT 登录",
+    "adapter": "codex",
+    "roles": ["planning", "implementation", "testing", "review"]
+  },
+  "local-chat": {
+    "label": "101 本地模型 · 规划/Review",
+    "adapter": "chat",
+    "model": "在此填写本地模型 ID",
+    "endpoint": "http://101主机地址:8080/v1",
+    "roles": ["planning", "review"]
+  },
+  "local-coder": {
+    "label": "101 本地模型 · Aider Coding",
+    "adapter": "aider",
+    "model": "openai/在此填写本地模型 ID",
+    "endpoint": "http://101主机地址:8080/v1",
+    "roles": ["implementation", "testing"]
+  },
+  "cloud-chat": {
+    "label": "云端模型 · 规划/Review",
+    "adapter": "chat",
+    "model": "在此填写云端模型 ID",
+    "endpoint": "https://云端提供商的兼容接口/v1",
+    "api_key_env": "MA_CLOUD_API_KEY",
+    "roles": ["planning", "review"]
+  },
+  "cloud-coder": {
+    "label": "云端模型 · Aider Coding",
+    "adapter": "aider",
+    "model": "openai/在此填写云端模型 ID",
+    "endpoint": "https://云端提供商的兼容接口/v1",
+    "api_key_env": "MA_CLOUD_API_KEY",
+    "roles": ["implementation", "testing"]
+  }
+}

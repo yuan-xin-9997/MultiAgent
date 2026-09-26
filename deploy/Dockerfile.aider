@@ -1,0 +1,3 @@
+FROM python:3.12
+RUN pip install --no-cache-dir --index-url https://pypi.tuna.tsinghua.edu.cn/simple aider-chat==0.86.2
+WORKDIR /workspace

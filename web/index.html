@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MultiAgent · Coding 工作台</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">M</span><div><strong>MultiAgent</strong><small>Coding 工作台</small></div></div>
+      <div class="top-actions"><span id="connection" class="connection">连接中</span><button id="new-task" class="secondary">新建任务</button></div>
+    </header>
+    <main>
+      <section class="intro"><p class="eyebrow">协作任务中心</p><h1>让 Agent 协作完成代码任务</h1><p>指定四个角色的模型，跟踪计划、实现、测试和 Review，最后交付 GitHub Pull Request。</p></section>
+      <div id="notice" class="notice hidden" role="alert"></div>
+      <div class="layout">
+        <aside class="panel tasks-panel"><div class="panel-heading"><h2>任务</h2><span id="task-count" class="muted">0</span></div><div id="tasks" class="task-list"></div></aside>
+        <section id="content" class="panel content-panel"></section>
+      </div>
+    </main>
+  </div>
+  <div id="login-overlay" class="overlay hidden"><form id="login-form" class="dialog"><span class="dialog-icon">M</span><h2>登录工作台</h2><p>输入此工作台的访问密码。</p><label>密码<input id="login-password" type="password" autocomplete="current-password" required></label><button type="submit" class="primary">登录</button></form></div>
+</body>
+</html>
