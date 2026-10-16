@@ -30,7 +30,7 @@ config = Path(os.environ["MA_CONFIG_DIR"])
 password = secrets.token_urlsafe(18)
 secret = secrets.token_urlsafe(48)
 values = {
-    "MA_HOST": os.environ["MA_TAILNET_IP"],
+    "MA_HOST": "0.0.0.0",
     "MA_PORT": "33080",
     "MA_DATA_DIR": os.environ["MA_DATA_PATH"],
     "MA_MODELS_FILE": str(config / "models.json"),

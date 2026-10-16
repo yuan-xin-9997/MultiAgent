@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    environment {
+        DEPLOY_DIR = '/opt/multiagent'
+        SERVICE_NAME = 'multiagent.service'
+    }
+
+    stages {
+        stage('Stop service') {
+            steps {
+                sh 'sudo systemctl stop "$SERVICE_NAME" || true'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    mkdir -p "$DEPLOY_DIR"
+                    rsync -a --delete \
+                        --exclude '.git/' \
+                        --exclude '.data/' \
+                        --exclude '__pycache__/' \
+                        "$WORKSPACE/" "$DEPLOY_DIR/"
+                '''
+            }
+        }
+
+        stage('Start service') {
+            steps {
+                sh 'sudo systemctl start "$SERVICE_NAME"'
+            }
+        }
+    }
+
+    post {
+        failure {
+            sh 'sudo systemctl start "$SERVICE_NAME" || true'
+        }
+    }
+}
