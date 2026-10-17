@@ -54,6 +54,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Verify service') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'personal-inspector-ubuntu-ssh', usernameVariable: 'DEPLOY_USER', passwordVariable: 'DEPLOY_PASSWORD')]) {
+                    sh '''
+                        export SSHPASS="$DEPLOY_PASSWORD"
+                        sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S systemctl --no-pager --full status '$SERVICE_NAME'; curl --fail --silent --show-error http://127.0.0.1:33080/ >/dev/null"
+                    '''
+                }
+            }
+        }
     }
 
     post {
