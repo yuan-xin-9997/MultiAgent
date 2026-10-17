@@ -4,38 +4,54 @@ pipeline {
     environment {
         DEPLOY_DIR = '/opt/multiagent'
         SERVICE_NAME = 'multiagent.service'
+        DEPLOY_HOST = '127.0.0.1'
     }
 
     stages {
         stage('Stop service') {
             steps {
-                sh 'sudo systemctl stop "$SERVICE_NAME" || true'
+                withCredentials([usernamePassword(credentialsId: 'personal-inspector-ubuntu-ssh', usernameVariable: 'DEPLOY_USER', passwordVariable: 'DEPLOY_PASSWORD')]) {
+                    sh '''
+                        export SSHPASS="$DEPLOY_PASSWORD"
+                        printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S systemctl stop '$SERVICE_NAME' || true"
+                    '''
+                }
             }
         }
 
         stage('Deploy') {
             steps {
-                sh '''
-                    mkdir -p "$DEPLOY_DIR"
-                    rsync -a --delete \
-                        --exclude '.git/' \
-                        --exclude '.data/' \
-                        --exclude '__pycache__/' \
-                        "$WORKSPACE/" "$DEPLOY_DIR/"
-                '''
+                withCredentials([usernamePassword(credentialsId: 'personal-inspector-ubuntu-ssh', usernameVariable: 'DEPLOY_USER', passwordVariable: 'DEPLOY_PASSWORD')]) {
+                    sh '''
+                        export SSHPASS="$DEPLOY_PASSWORD"
+                        tar --exclude=.git --exclude=.data --exclude=__pycache__ -czf - -C "$WORKSPACE" . \
+                          | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p /tmp/multiagent-deploy && tar -xzf - -C /tmp/multiagent-deploy"
+                        printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S mkdir -p '$DEPLOY_DIR' && sudo -S rsync -a --delete --exclude=.git/ --exclude=.data/ --exclude=__pycache__/ /tmp/multiagent-deploy/ '$DEPLOY_DIR/'"
+                    '''
+                }
             }
         }
 
         stage('Start service') {
             steps {
-                sh 'sudo systemctl start "$SERVICE_NAME"'
+                withCredentials([usernamePassword(credentialsId: 'personal-inspector-ubuntu-ssh', usernameVariable: 'DEPLOY_USER', passwordVariable: 'DEPLOY_PASSWORD')]) {
+                    sh '''
+                        export SSHPASS="$DEPLOY_PASSWORD"
+                        printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S systemctl start '$SERVICE_NAME'"
+                    '''
+                }
             }
         }
     }
 
     post {
         failure {
-            sh 'sudo systemctl start "$SERVICE_NAME" || true'
+            withCredentials([usernamePassword(credentialsId: 'personal-inspector-ubuntu-ssh', usernameVariable: 'DEPLOY_USER', passwordVariable: 'DEPLOY_PASSWORD')]) {
+                sh '''
+                    export SSHPASS="$DEPLOY_PASSWORD"
+                    printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S systemctl start '$SERVICE_NAME' || true"
+                '''
+            }
         }
     }
 }
