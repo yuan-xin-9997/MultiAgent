@@ -39,6 +39,7 @@ pipeline {
                     sh '''
                         export SSHPASS="$DEPLOY_PASSWORD"
                         unit_b64=$(printf '%b' "[Unit]\nDescription=MultiAgent Coding Web and worker\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=simple\nUser=$DEPLOY_USER\nWorkingDirectory=$DEPLOY_DIR\nEnvironmentFile=/home/$DEPLOY_USER/.config/multiagent/env\nEnvironment=MA_HOST=0.0.0.0\nExecStart=/usr/bin/python3 $DEPLOY_DIR/app.py\nRestart=always\nRestartSec=5\nUMask=0077\nNoNewPrivileges=true\nMemoryMax=4G\n\n[Install]\nWantedBy=multi-user.target\n" | base64 -w0)
+                        sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sed -i 's/^MA_HOST=.*/MA_HOST=0.0.0.0/' /home/$DEPLOY_USER/.config/multiagent/env"
                         sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "printf '%s\\n' '$DEPLOY_PASSWORD' | sudo -S bash -c 'echo $unit_b64 | base64 -d > /etc/systemd/system/$SERVICE_NAME && systemctl daemon-reload && systemctl enable $SERVICE_NAME'"
                     '''
                 }
