@@ -13,6 +13,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'personal-inspector-ubuntu-ssh', usernameVariable: 'DEPLOY_USER', passwordVariable: 'DEPLOY_PASSWORD')]) {
                     sh '''
                         export SSHPASS="$DEPLOY_PASSWORD"
+                        sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "systemctl --user stop '$SERVICE_NAME' || true; systemctl --user disable '$SERVICE_NAME' || true"
                         printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S systemctl stop '$SERVICE_NAME' || true"
                     '''
                 }
