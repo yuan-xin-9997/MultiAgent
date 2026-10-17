@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DEPLOY_DIR = '/opt/multiagent'
+        DEPLOY_DIR = '/home/yuanxin/apps/multiagent'
         SERVICE_NAME = 'multiagent.service'
         DEPLOY_HOST = '127.0.0.1'
     }
@@ -13,7 +13,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'personal-inspector-ubuntu-ssh', usernameVariable: 'DEPLOY_USER', passwordVariable: 'DEPLOY_PASSWORD')]) {
                     sh '''
                         export SSHPASS="$DEPLOY_PASSWORD"
-                        printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S systemctl stop '$SERVICE_NAME' || true"
+                        printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "systemctl --user stop '$SERVICE_NAME' || true"
                     '''
                 }
             }
@@ -26,7 +26,7 @@ pipeline {
                         export SSHPASS="$DEPLOY_PASSWORD"
                         tar --exclude=.git --exclude=.data --exclude=__pycache__ -czf - -C "$WORKSPACE" . \
                           | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p /tmp/multiagent-deploy && tar -xzf - -C /tmp/multiagent-deploy"
-                        printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S mkdir -p '$DEPLOY_DIR' && sudo -S rsync -a --delete --exclude=.git/ --exclude=.data/ --exclude=__pycache__/ /tmp/multiagent-deploy/ '$DEPLOY_DIR/'"
+                        sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_DIR' && rsync -a --delete --exclude=.git/ --exclude=.data/ --exclude=__pycache__/ /tmp/multiagent-deploy/ '$DEPLOY_DIR/'"
                     '''
                 }
             }
@@ -37,7 +37,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'personal-inspector-ubuntu-ssh', usernameVariable: 'DEPLOY_USER', passwordVariable: 'DEPLOY_PASSWORD')]) {
                     sh '''
                         export SSHPASS="$DEPLOY_PASSWORD"
-                        printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S systemctl start '$SERVICE_NAME'"
+                        printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "systemctl --user start '$SERVICE_NAME'"
                     '''
                 }
             }
@@ -49,7 +49,7 @@ pipeline {
             withCredentials([usernamePassword(credentialsId: 'personal-inspector-ubuntu-ssh', usernameVariable: 'DEPLOY_USER', passwordVariable: 'DEPLOY_PASSWORD')]) {
                 sh '''
                     export SSHPASS="$DEPLOY_PASSWORD"
-                    printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "sudo -S systemctl start '$SERVICE_NAME' || true"
+                    printf '%s\\n' "$DEPLOY_PASSWORD" | sshpass -e ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "systemctl --user start '$SERVICE_NAME' || true"
                 '''
             }
         }
