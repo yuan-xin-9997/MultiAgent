@@ -575,10 +575,11 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
-        if path in ("/app.js", "/style.css") and method == "GET":
+        if path in ("/app.js", "/style.css", "/favicon.svg") and method == "GET":
             body = (ROOT / "web" / path[1:]).read_bytes()
+            content_type = {".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml"}[Path(path).suffix]
             self.send_response(200)
-            self.send_header("Content-Type", "text/javascript" if path.endswith(".js") else "text/css")
+            self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(body)))
             self.send_header("X-Content-Type-Options", "nosniff")
             self.end_headers()
